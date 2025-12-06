@@ -102,7 +102,28 @@ export default function GridPage(){
   const currentTurnPlayer = players.find(p => Number(p.playerId) === Number(currentPlayerId))
 
   return (
-    <div className="container">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '20px',
+      position: 'relative'
+    }}>
+      {/* Restart button - top right */}
+      <button 
+        onClick={handleRestart} 
+        disabled={resetting}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px'
+        }}
+      >
+        {resetting ? 'Restarting...' : 'Restart'}
+      </button>
+
       {winner ? (
         <div style={{display:'flex',alignItems:'center',gap:12,background:'#fffae6',border:'1px solid #ffd24d',padding:12,marginBottom:12,borderRadius:6, color:'#000'}}>
           <div>
@@ -113,12 +134,7 @@ export default function GridPage(){
           </div>
         </div>
       ) : null}
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
-        <h2 style={{margin:0}}>Grid</h2>
-        <div style={{marginLeft:'auto'}}>
-          <button onClick={handleRestart} disabled={resetting}>{resetting ? 'Restarting...' : 'Restart'}</button>
-        </div>
-      </div>
+      <h2 style={{margin:'0 0 8px 0'}}>Grid</h2>
       <p>Click a highlighted adjacent cell to request it — the UI follows the server's current turn automatically.</p>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:10}}>
         <div>

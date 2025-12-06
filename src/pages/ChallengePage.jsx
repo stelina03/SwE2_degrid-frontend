@@ -60,7 +60,14 @@ export default function ChallengePage(){
   }
 
   return (
-    <div className="container">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '20px'
+    }}>
       <h2>Challenge</h2>
       <div className="challenge-root">
         <div className="challenge-left">

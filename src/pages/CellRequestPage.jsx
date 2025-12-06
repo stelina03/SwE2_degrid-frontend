@@ -140,7 +140,16 @@ export default function CellRequestPage(){
   }
 
   return (
-    <div className="container">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '20px',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }}>
       <h2>Cell Request</h2>
       <div className="form-row">
         <label>Player ID:</label>
