@@ -50,7 +50,7 @@ jobs:
           # Clone and start backend in parallel
           cd ..
           git clone https://github.com/hoo2/SwE2_degrid-backend.git backend
-          cd backend/SwE2_degrid-backend
+          cd backend
           npm ci
           npm start > /tmp/backend.log 2>&1 &
           echo $! > /tmp/backend.pid
