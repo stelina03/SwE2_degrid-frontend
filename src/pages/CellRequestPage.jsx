@@ -3,6 +3,33 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../api/client'
 import './challenge.css'
 
+// convert a cellId (1-based) to { x, y } on a 10x10 grid
+const cellIdToXY = (cellId) => {
+  const n = Number(cellId)
+  if (!Number.isFinite(n) || n < 1) return null
+  const idx = n - 1
+  return { x: idx % 10, y: Math.floor(idx / 10) }
+}
+
+// check 4-directional adjacency between a target coord and any claimed cell ids
+const isAdjacentToClaimed = (tx, ty, claimedCells = []) => {
+  for (const cid of claimedCells){
+    const pos = cellIdToXY(Number(cid)) // ensure cid is a number
+    if (!pos) continue
+    const dx = Math.abs(pos.x - tx)
+    const dy = Math.abs(pos.y - ty)
+    if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) return true
+  }
+  return false
+}
+
+// fallback starting positions mirror backend initialCoords
+const fallbackStarts = {
+  1: [0,0], 2: [0,2], 3: [0,4], 4: [0,6], 5: [0,8],
+  6: [9,8], 7: [9,6], 8: [9,4], 9: [9,2], 10: [9,0]
+}
+const xyToCellId = (x,y) => (y*10 + x + 1)
+
 export default function CellRequestPage(){
   const [searchParams] = useSearchParams()
   const initPid = searchParams.get('playerId') ? Number(searchParams.get('playerId')) : 1
@@ -52,7 +79,8 @@ export default function CellRequestPage(){
     if (!autoRequested && sx !== null && sy !== null && sp){
       if (currentPlayerId && Number(currentPlayerId) !== Number(sp)) return
       setAutoRequested(true)
-      requestCell()
+      // Don't auto-request; let user click the button manually
+      // requestCell()
     }
   }, [searchParams, currentPlayerId, autoRequested])
 
@@ -66,12 +94,24 @@ export default function CellRequestPage(){
     if (loadingRequest) return
     setLoadingRequest(true)
     setResp(null)
-    if (x < 0 || x > 9 || y < 0 || y > 9) return setResp({ error: 'Coordinates must be 0..9' })
+    const xi = Number(x)
+    const yi = Number(y)
+    if (!Number.isFinite(xi) || !Number.isFinite(yi)) {
+      setLoadingRequest(false)
+      return setResp({ error: 'Enter numeric coordinates' })
+    }
+    if (xi < 0 || xi > 9 || yi < 0 || yi > 9) {
+      setLoadingRequest(false)
+      return setResp({ error: 'Coordinates must be 0..9' })
+    }
+    // Check if it's the player's turn
     if (currentPlayerId && Number(playerId) !== Number(currentPlayerId)) {
-      return setResp({ error: `Not player ${playerId}'s turn` })
+      setLoadingRequest(false)
+      return setResp({ error: `It's not player ${playerId}'s turn (current turn: ${currentPlayerId})` })
     }
     try{
-      const r = await api.post(`/players/${playerId}/request`, { x: Number(x), y: Number(y) })
+      // Let the backend handle adjacency validation - it has the authoritative game state
+      const r = await api.post(`/players/${playerId}/request`, { x: xi, y: yi })
       setResp(r.data)
       if (r.data && r.data.success && r.data.challengeId){
         const cellInfo = r.data.cell
@@ -164,15 +204,12 @@ export default function CellRequestPage(){
       </div>
 
       <div>
-  <button onClick={requestCell} disabled={loadingRequest || (currentPlayerId && Number(playerId) !== Number(currentPlayerId))}>{loadingRequest ? 'Requesting...' : 'Request coordinates'}</button>
-        {currentPlayerId && Number(playerId) !== Number(currentPlayerId) && (
-          <div style={{color:'crimson',marginTop:8}}>It's not player {playerId}'s turn ({currentPlayerId} has the turn)</div>
-        )}
+        <button onClick={requestCell} disabled={loadingRequest}>{loadingRequest ? 'Requesting...' : 'Request coordinates'}</button>
       </div>
 
       <div className="response">
-        {resp && resp.error && (
-          <div className="error">{resp.error}</div>
+        {resp && (resp.error || resp.message) && !resp.success && (
+          <div className="error" style={{color:'crimson',marginTop:10}}>{resp.error || resp.message}</div>
         )}
       </div>
 
