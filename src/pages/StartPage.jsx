@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import api from '../api/client'
 import logo from '../assets/logo.png'
 
 export default function StartPage(){
@@ -18,7 +19,10 @@ export default function StartPage(){
       <p style={{ margin: '12px 0', fontSize: '1rem', opacity: 0.9 }}>Start the game.</p>
       <button 
         className="primary" 
-        onClick={() => nav('/grid')}
+        onClick={async () => {
+          try { await api.post('/game/reset') } catch(e) { /* ignore */ }
+          nav('/grid')
+        }}
         style={{ marginTop: '8px' }}
       >
         START GAME
