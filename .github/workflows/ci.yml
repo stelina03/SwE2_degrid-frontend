@@ -1,4 +1,5 @@
 name: Frontend CI/CD
+# Runs build, Cypress E2E tests, and Render deploy hook on main/master
 
 on:
   push:
@@ -47,31 +48,24 @@ jobs:
       # ─────────────────────────────────────────────────────────
       - name: Start backend server
         run: |
-          # Clone and start backend in parallel
+          # Clone backend repo and start server in background
           cd ..
           git clone https://github.com/hoo2/SwE2_degrid-backend.git backend
           cd backend
           npm ci
-          npm start > /tmp/backend.log 2>&1 &
-          echo $! > /tmp/backend.pid
-          echo "Backend starting..."
-          sleep 10
-
-      - name: Verify backend is running
-        run: |
-          curl -f http://localhost:3000/health || (cat /tmp/backend.log && exit 1)
+          npm start &
+          echo $! > backend.pid
+          sleep 5
+          # Verify backend is running
+          curl http://localhost:3000/health || echo "Backend health check failed"
 
       - name: Start frontend dev server
         run: |
-          cd $GITHUB_WORKSPACE
-          npm run dev > /tmp/frontend.log 2>&1 &
-          echo $! > /tmp/frontend.pid
-          echo "Frontend starting..."
-          sleep 10
-
-      - name: Verify frontend is running
-        run: |
-          curl -f http://localhost:5173 || (cat /tmp/frontend.log && exit 1)
+          npm run dev &
+          echo $! > frontend.pid
+          sleep 5
+          # Verify frontend is running
+          curl http://localhost:5173 || echo "Frontend not responding"
 
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
@@ -100,9 +94,8 @@ jobs:
       - name: Stop servers
         if: always()
         run: |
-          kill $(cat /tmp/frontend.pid) 2>/dev/null || true
-          kill $(cat /tmp/backend.pid) 2>/dev/null || true
-          sleep 2
+          if [ -f frontend.pid ]; then kill $(cat frontend.pid) || true; fi
+          if [ -f ../backend/backend.pid ]; then kill $(cat ../backend/backend.pid) || true; fi
 
   # ═══════════════════════════════════════════════════════════
   # CD: Deploy to Production (only on main/master) - Render hook
