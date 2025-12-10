@@ -47,24 +47,31 @@ jobs:
       # ─────────────────────────────────────────────────────────
       - name: Start backend server
         run: |
-          # Clone backend repo and start server in background
+          # Clone and start backend in parallel
           cd ..
           git clone https://github.com/hoo2/SwE2_degrid-backend.git backend
-          cd backend
+          cd backend/SwE2_degrid-backend
           npm ci
-          npm start &
-          echo $! > backend.pid
-          sleep 5
-          # Verify backend is running
-          curl http://localhost:3000/health || echo "Backend health check failed"
+          npm start > /tmp/backend.log 2>&1 &
+          echo $! > /tmp/backend.pid
+          echo "Backend starting..."
+          sleep 10
+
+      - name: Verify backend is running
+        run: |
+          curl -f http://localhost:3000/health || (cat /tmp/backend.log && exit 1)
 
       - name: Start frontend dev server
         run: |
-          npm run dev &
-          echo $! > frontend.pid
-          sleep 5
-          # Verify frontend is running
-          curl http://localhost:5173 || echo "Frontend not responding"
+          cd $GITHUB_WORKSPACE
+          npm run dev > /tmp/frontend.log 2>&1 &
+          echo $! > /tmp/frontend.pid
+          echo "Frontend starting..."
+          sleep 10
+
+      - name: Verify frontend is running
+        run: |
+          curl -f http://localhost:5173 || (cat /tmp/frontend.log && exit 1)
 
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
@@ -93,8 +100,9 @@ jobs:
       - name: Stop servers
         if: always()
         run: |
-          if [ -f frontend.pid ]; then kill $(cat frontend.pid) || true; fi
-          if [ -f ../backend/backend.pid ]; then kill $(cat ../backend/backend.pid) || true; fi
+          kill $(cat /tmp/frontend.pid) 2>/dev/null || true
+          kill $(cat /tmp/backend.pid) 2>/dev/null || true
+          sleep 2
 
   # ═══════════════════════════════════════════════════════════
   # CD: Deploy to Production (only on main/master) - Render hook
