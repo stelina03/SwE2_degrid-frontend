@@ -3,33 +3,6 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../api/client'
 import './challenge.css'
 
-// convert a cellId (1-based) to { x, y } on a 10x10 grid
-const cellIdToXY = (cellId) => {
-  const n = Number(cellId)
-  if (!Number.isFinite(n) || n < 1) return null
-  const idx = n - 1
-  return { x: idx % 10, y: Math.floor(idx / 10) }
-}
-
-// check 4-directional adjacency between a target coord and any claimed cell ids
-const isAdjacentToClaimed = (tx, ty, claimedCells = []) => {
-  for (const cid of claimedCells){
-    const pos = cellIdToXY(Number(cid)) // ensure cid is a number
-    if (!pos) continue
-    const dx = Math.abs(pos.x - tx)
-    const dy = Math.abs(pos.y - ty)
-    if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) return true
-  }
-  return false
-}
-
-// fallback starting positions mirror backend initialCoords
-const fallbackStarts = {
-  1: [0,0], 2: [0,2], 3: [0,4], 4: [0,6], 5: [0,8],
-  6: [9,8], 7: [9,6], 8: [9,4], 9: [9,2], 10: [9,0]
-}
-const xyToCellId = (x,y) => (y*10 + x + 1)
-
 export default function CellRequestPage(){
   const [searchParams] = useSearchParams()
   const initPid = searchParams.get('playerId') ? Number(searchParams.get('playerId')) : 1

@@ -126,7 +126,7 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
 
       - name: Trigger Render deploy hook
-        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
         run: |
           curl -X POST "$RENDER_DEPLOY_HOOK"
           echo "✅ Render deploy hook triggered"
