@@ -34,7 +34,7 @@ describe('Test 10: Players Page - View and Edit Players', () => {
     
     // Verify success message or confirmation
     cy.on('window:alert', (text) => {
-      expect(text).to.contains('Saved')
+      expect(text).to.contain('Saved')
     })
     cy.log('✓ Player information saved successfully')
   })
