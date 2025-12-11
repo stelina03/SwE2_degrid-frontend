@@ -78,10 +78,10 @@ export default function GridPage(){
   // recompute available targets whenever cells or currentPlayerId changes
   useEffect(()=>{
     const s = new Set()
-    const pid = Number(currentPlayerId)
     // if there's a winner, disable all available moves
     if (winner) { setAvailableSet(s); return }
-    if (!cells || cells.length === 0 || !pid) { setAvailableSet(s); return }
+    if (!cells || cells.length === 0 || !currentPlayerId) { setAvailableSet(s); return }
+    const pid = Number(currentPlayerId)
     // find all cells owned by pid (support both `owner` and `cell-owner` fields)
     const owned = cells.filter(c => Number(c.owner ?? c['cell-owner']) === pid)
     for (const o of owned){

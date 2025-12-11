@@ -52,7 +52,8 @@ export default function CellRequestPage(){
     if (!autoRequested && sx !== null && sy !== null && sp){
       if (currentPlayerId && Number(currentPlayerId) !== Number(sp)) return
       setAutoRequested(true)
-      requestCell()
+      // Don't auto-request; let user click the button manually
+      // requestCell()
     }
   }, [searchParams, currentPlayerId, autoRequested])
 
@@ -66,12 +67,24 @@ export default function CellRequestPage(){
     if (loadingRequest) return
     setLoadingRequest(true)
     setResp(null)
-    if (x < 0 || x > 9 || y < 0 || y > 9) return setResp({ error: 'Coordinates must be 0..9' })
+    const xi = Number(x)
+    const yi = Number(y)
+    if (!Number.isFinite(xi) || !Number.isFinite(yi)) {
+      setLoadingRequest(false)
+      return setResp({ error: 'Enter numeric coordinates' })
+    }
+    if (xi < 0 || xi > 9 || yi < 0 || yi > 9) {
+      setLoadingRequest(false)
+      return setResp({ error: 'Coordinates must be 0..9' })
+    }
+    // Check if it's the player's turn
     if (currentPlayerId && Number(playerId) !== Number(currentPlayerId)) {
-      return setResp({ error: `Not player ${playerId}'s turn` })
+      setLoadingRequest(false)
+      return setResp({ error: `It's not player ${playerId}'s turn (current turn: ${currentPlayerId})` })
     }
     try{
-      const r = await api.post(`/players/${playerId}/request`, { x: Number(x), y: Number(y) })
+      // Let the backend handle adjacency validation - it has the authoritative game state
+      const r = await api.post(`/players/${playerId}/request`, { x: xi, y: yi })
       setResp(r.data)
       if (r.data && r.data.success && r.data.challengeId){
         const cellInfo = r.data.cell
@@ -164,15 +177,12 @@ export default function CellRequestPage(){
       </div>
 
       <div>
-  <button onClick={requestCell} disabled={loadingRequest || (currentPlayerId && Number(playerId) !== Number(currentPlayerId))}>{loadingRequest ? 'Requesting...' : 'Request coordinates'}</button>
-        {currentPlayerId && Number(playerId) !== Number(currentPlayerId) && (
-          <div style={{color:'crimson',marginTop:8}}>It's not player {playerId}'s turn ({currentPlayerId} has the turn)</div>
-        )}
+        <button onClick={requestCell} disabled={loadingRequest}>{loadingRequest ? 'Requesting...' : 'Request coordinates'}</button>
       </div>
 
       <div className="response">
-        {resp && resp.error && (
-          <div className="error">{resp.error}</div>
+        {resp && (resp.error || resp.message) && !resp.success && (
+          <div className="error" style={{color:'crimson',marginTop:10}}>{resp.error || resp.message}</div>
         )}
       </div>
 
