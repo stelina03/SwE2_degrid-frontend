@@ -1,7 +1,7 @@
 describe('Test 9: Unhappy Path - Challenge Failure', () => {
   it('should execute a challenge that results in failure', () => {
     // Start game flow - user navigates to grid
-    cy.visit('http://localhost:5173')
+    cy.visit('/')
     cy.contains('button', 'START GAME').click()
     cy.url().should('include', '/grid')
     cy.wait(2000)
