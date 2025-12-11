@@ -1,7 +1,7 @@
 describe('Test 10: Players Page - View and Edit Players', () => {
   it('should navigate to Players page and view/edit player information', () => {
     // Start from home
-    cy.visit('http://localhost:5173')
+    cy.visit('/')
     
     // Click on Players link in navigation
     cy.get('nav a').contains('Players').click()
