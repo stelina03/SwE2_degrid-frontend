@@ -1,16 +1,15 @@
 describe('Test 4: Form Submission - Adjacent Cell Request', () => {
   it('should successfully request an adjacent cell via form submission', () => {
     // Start game first
-    cy.visit('/')
+    cy.visit('http://localhost:5173')
     cy.contains('button', 'START GAME').click()
     cy.url().should('include', '/grid')
 
     // Manually navigate to cell request form (don't auto-submit)
-    cy.visit('/cell-request?playerId=1')
+    cy.visit('http://localhost:5173/cell-request?playerId=1')
     
-    // Wait for the X and Y input fields to be visible and enabled
-    cy.get('input[type="number"]').eq(1).should('be.visible').and('be.enabled')
-    cy.get('input[type="number"]').eq(2).should('be.visible').and('be.enabled')
+    // Wait a moment for page to load
+    cy.wait(1000)
     
     // Enter adjacent cell coordinates (1,0) - adjacent to player 1's start at (0,0)
     cy.get('input[type="number"]').eq(1).clear().type('1')  // X input

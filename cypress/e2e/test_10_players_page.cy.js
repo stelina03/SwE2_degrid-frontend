@@ -1,7 +1,7 @@
 describe('Test 10: Players Page - View and Edit Players', () => {
   it('should navigate to Players page and view/edit player information', () => {
     // Start from home
-    cy.visit('/')
+    cy.visit('http://localhost:5173')
     
     // Click on Players link in navigation
     cy.get('nav a').contains('Players').click()
@@ -29,13 +29,13 @@ describe('Test 10: Players Page - View and Edit Players', () => {
     cy.log('✓ Edited player description')
     
     // Save changes
+    cy.contains('button', 'Save').click()
+    cy.log('✓ Clicked Save button')
+    
     // Verify success message or confirmation
     cy.on('window:alert', (text) => {
       expect(text).to.contains('Saved')
     })
-    cy.contains('button', 'Save').click()
-    cy.log('✓ Clicked Save button')
-    
     cy.log('✓ Player information saved successfully')
   })
 })

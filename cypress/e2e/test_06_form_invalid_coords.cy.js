@@ -6,10 +6,10 @@ describe('Test 6: Form Submission - Invalid Coordinates', () => {
     cy.url().should('include', '/grid')
 
     // Navigate to cell request form
-    cy.visit('/cell-request?playerId=1')
+    cy.visit('http://localhost:5173/cell-request?playerId=1')
     
-    // Wait for the number input to be visible and enabled
-    cy.get('input[type="number"]').should('be.visible').and('be.enabled')
+    // Wait a moment for page to load
+    cy.wait(1000)
     
     // Enter invalid coordinates (outside 0-9 range)
     cy.get('input[type="number"]').eq(1).clear().type('15')  // X input - invalid

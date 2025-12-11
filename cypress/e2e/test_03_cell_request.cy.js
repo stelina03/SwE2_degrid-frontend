@@ -1,7 +1,7 @@
 describe('Test 3: Cell Request from GridPage', () => {
   it('should ONLY allow clicking adjacent cells and reject non-adjacent cells', () => {
     // Start the game
-    cy.visit('/')
+    cy.visit('http://localhost:5173')
     cy.contains('button', 'START GAME').click()
     cy.url().should('include', '/grid')
     cy.get('.grid').should('exist')
