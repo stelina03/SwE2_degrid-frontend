@@ -29,13 +29,13 @@ describe('Test 10: Players Page - View and Edit Players', () => {
     cy.log('✓ Edited player description')
     
     // Save changes
+    // Verify success message or confirmation
+    cy.on('window:alert', (text) => {
+      expect(text).to.contains('Saved')
+    })
     cy.contains('button', 'Save').click()
     cy.log('✓ Clicked Save button')
     
-    // Verify success message or confirmation
-    cy.on('window:alert', (text) => {
-      expect(text).to.contain('Saved')
-    })
     cy.log('✓ Player information saved successfully')
   })
 })
