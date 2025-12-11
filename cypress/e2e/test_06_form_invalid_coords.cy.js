@@ -6,7 +6,7 @@ describe('Test 6: Form Submission - Invalid Coordinates', () => {
     cy.url().should('include', '/grid')
 
     // Navigate to cell request form
-    cy.visit('http://localhost:5173/cell-request?playerId=1')
+    cy.visit('/cell-request?playerId=1')
     
     // Wait for the number input to be visible and enabled
     cy.get('input[type="number"]').should('be.visible').and('be.enabled')
