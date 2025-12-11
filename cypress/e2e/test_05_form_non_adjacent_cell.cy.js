@@ -1,12 +1,12 @@
 describe('Test 5: Form Submission - Non-Adjacent Cell Request', () => {
   it('should reject request for non-adjacent cell', () => {
     // Start game first
-    cy.visit('http://localhost:5173')
+    cy.visit('/')
     cy.contains('button', 'START GAME').click()
     cy.url().should('include', '/grid')
 
     // Navigate to cell request form
-    cy.visit('http://localhost:5173/cell-request?playerId=1')
+    cy.visit('/cell-request?playerId=1')
     
     // Wait a moment for page to load
     cy.wait(1000)
