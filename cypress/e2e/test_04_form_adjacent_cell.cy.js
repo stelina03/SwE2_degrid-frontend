@@ -1,12 +1,12 @@
 describe('Test 4: Form Submission - Adjacent Cell Request', () => {
   it('should successfully request an adjacent cell via form submission', () => {
     // Start game first
-    cy.visit('http://localhost:5173')
+    cy.visit('/')
     cy.contains('button', 'START GAME').click()
     cy.url().should('include', '/grid')
 
     // Manually navigate to cell request form (don't auto-submit)
-    cy.visit('http://localhost:5173/cell-request?playerId=1')
+    cy.visit('/cell-request?playerId=1')
     
     // Wait a moment for page to load
     cy.wait(1000)
